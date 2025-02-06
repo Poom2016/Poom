@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Touch Typing Trainer - Levels 1 to 100</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    section {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 20px;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    .highlight {
+      background: #ffd700;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    #test-text {
+      font-size: 20px;
+      margin: 15px 0;
+      color: #333;
+      min-height: 40px;
+    }
+    #user-input {
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    #stats {
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    #level-display {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      background: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Touch Typing Trainer</h1>
+    <p>Practice your touch typing skills from beginner finger placement to advanced speed and accuracy challenges (Levels 1-100)!</p>
+  </header>
+
+  <!-- Lesson section for beginners -->
+  <section id="lesson">
+    <h2>Beginner Lesson: Finger Placement</h2>
+    <p>
+      The first step in touch typing is knowing where to place your fingers on the home row. Place your left fingers on <span class="highlight">A, S, D, F</span> and your right fingers on <span class="highlight">J, K, L, ;</span>. 
+    </p>
+    <p>
+      Your index fingers rest on the keys with small raised bumps (<span class="highlight">F</span> for left, <span class="highlight">J</span> for right) so you can locate them without looking. Your thumbs should lightly rest on the space bar.
+    </p>
+    <p>
+      Practice the proper finger placement before moving on to the typing test.
+    </p>
+    <button id="start-game-btn">Start Typing Test</button>
+  </section>
+
+  <!-- Game section -->
+  <section id="game" class="hidden">
+    <div id="level-display">Level: 1</div>
+    <h2>Typing Test</h2>
+    <p id="test-text">Loading text...</p>
+    <input type="text" id="user-input" placeholder="Start typing here..." autofocus />
+    <div id="stats">
+      <span id="time">Time: 0 s</span> | 
+      <span id="wpm">WPM: 0</span> | 
+      <span id="accuracy">Accuracy: 100%</span>
+    </div>
+    <button id="restart-btn">Restart Level</button>
+  </section>
+
+  <script>
+    // Global variables for level and timing
+    let currentLevel = 1;
+    const maxLevel = 100;
+    let startTime, interval;
+    
+    // Word bank for generating test texts
+    const wordBank = [
+      "the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog",
+      "hello", "world", "typing", "practice", "keyboard", "learn", "speed", "accuracy",
+      "skill", "challenge", "code", "javascript", "function", "variable", "array",
+      "object", "dynamic", "performance", "progress", "level", "beginner", "advanced",
+      "master", "trainer", "exercise", "complete", "test", "random", "words"
+    ];
+
+    // DOM elements
+    const lessonSection = document.getElementById("lesson");
+    const gameSection = document.getElementById("game");
+    const startBtn = document.getElementById("start-game-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const testTextElem = document.getElementById("test-text");
+    const userInput = document.getElementById("user-input");
+    const timeElem = document.getElementById("time");
+    const wpmElem = document.getElementById("wpm");
+    const accuracyElem = document.getElementById("accuracy");
+    const levelDisplay = document.getElementById("level-display");
+
+    // Start the game from lesson
+    startBtn.addEventListener("click", () => {
+      lessonSection.classList.add("hidden");
+      gameSection.classList.remove("hidden");
+      startTest();
+    });
+
+    // Restart the current level
+    restartBtn.addEventListener("click", () => {
+      resetTest();
+      startTest();
+    });
+
+    // Generate test text based on current level
+    function generateTestText(level) {
+      // Increase word count with level (from 3 words up to about 36 words by level 100)
+      const wordCount = Math.floor(3 + level / 3);
+      let words = [];
+      for (let i = 0; i < wordCount; i++) {
+        const randIndex = Math.floor(Math.random() * wordBank.length);
+        words.push(wordBank[randIndex]);
+      }
+      let sentence = words.join(" ");
+      sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1) + ".";
+      return sentence;
+    }
+
+    // Start the typing test
+    function startTest() {
+      // Update level display
+      levelDisplay.textContent = "Level: " + currentLevel;
+      // Generate and display text for the current level
+      const currentText = generateTestText(currentLevel);
+      testTextElem.textContent = currentText;
+      userInput.value = "";
+      userInput.focus();
+      // Initialize timing
+      startTime = new Date();
+      clearInterval(interval);
+      interval = setInterval(updateStats.bind(null, currentText), 1000);
+    }
+
+    // Reset stats display
+    function resetTest() {
+      clearInterval(interval);
+      timeElem.textContent = "Time: 0 s";
+      wpmElem.textContent = "WPM: 0";
+      accuracyElem.textContent = "Accuracy: 100%";
+    }
+
+    // Update game statistics: time elapsed, words per minute, and accuracy
+    function updateStats(currentText) {
+      const elapsed = Math.floor((new Date() - startTime) / 1000);
+      timeElem.textContent = "Time: " + elapsed + " s";
+      
+      // Calculate words per minute (WPM)
+      const wordsTyped = userInput.value.trim().split(" ").filter(word => word.length > 0).length;
+      const wpm = elapsed > 0 ? Math.floor((wordsTyped / elapsed) * 60) : 0;
+      wpmElem.textContent = "WPM: " + wpm;
+      
+      // Calculate accuracy by comparing each character typed to the target text
+      let correctChars = 0;
+      const inputText = userInput.value;
+      for (let i = 0; i < inputText.length; i++) {
+        if (inputText[i] === currentText[i]) {
+          correctChars++;
+        }
+      }
+      const accuracy = inputText.length > 0 ? Math.floor((correctChars / inputText.length) * 100) : 100;
+      accuracyElem.textContent = "Accuracy: " + accuracy + "%";
+
+      // Check if the user has completed the text correctly
+      if (userInput.value === currentText) {
+        clearInterval(interval);
+        // Provide feedback and automatically move to the next level (if any)
+        setTimeout(() => {
+          alert("Level " + currentLevel + " complete!\nTime: " + elapsed + " seconds\nWPM: " + wpm + "\nAccuracy: " + accuracy + "%");
+          if (currentLevel < maxLevel) {
+            currentLevel++;
+            resetTest();
+            startTest();
+          } else {
+            alert("Congratulations! You have completed all levels.");
+          }
+        }, 100);
+      }
+    }
+  </script>
+</body>
+</html>
